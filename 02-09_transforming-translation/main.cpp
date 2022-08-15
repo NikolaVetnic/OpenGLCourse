@@ -5,13 +5,16 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include <glm/mat4x4.hpp>
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 // window dimension 
 const GLint WIDTH = 800;
 const GLint HEIGHT = 600;
 
-GLuint VAO, VBO, shader, uniformXMove;
+GLuint VAO, VBO, shader, uniformModel;
 
 bool direction = true; // right - true, left - false
 float triOffset = 0.0f;
@@ -24,11 +27,11 @@ static const char* vShader = "                                  \n\
                                                                 \n\
     layout (location = 0) in vec3 pos;                          \n\
                                                                 \n\
-    uniform float xMove;                                        \n\
+    uniform mat4 model;                                         \n\
                                                                 \n\
     void main()                                                 \n\
     {                                                           \n\
-        gl_Position = vec4(pos.x + xMove, pos.y, pos.z, 1.0f);  \n\
+        gl_Position = model * vec4(pos.x, pos.y, pos.z, 1.0f);  \n\
     }                                                           \n\
 ";
 
@@ -140,7 +143,7 @@ void compileShaders()
         return;
     }
 
-    uniformXMove = glGetUniformLocation(shader, "xMove"); // getting the location of the uniform variable
+    uniformModel = glGetUniformLocation(shader, "model"); // getting the location of the uniform variable
 }
 
 int main()
@@ -214,7 +217,11 @@ int main()
 
         glUseProgram(shader);
 
-            glUniform1f(uniformXMove, triOffset);
+        glm::mat4 model = glm::mat4(1.0f); // initialised to identity matrix
+        model = glm::translate(model, glm::vec3(triOffset, triOffset, 0.0f));
+
+        glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
             glBindVertexArray(VAO);
 
                 glDrawArrays(GL_TRIANGLES, 0, 3);
