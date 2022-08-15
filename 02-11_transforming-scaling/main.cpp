@@ -24,6 +24,11 @@ float triIncrement = 5e-3f;
 
 float currAngle = 0.0f;
 
+bool sizeDirection = true;
+float currSize = 0.5f;
+float maxSize = 1.0f;
+float minSize = 0.1f;
+
 // vertex shader
 static const char* vShader = "                                  \n\
     #version 330                                                \n\
@@ -34,7 +39,7 @@ static const char* vShader = "                                  \n\
                                                                 \n\
     void main()                                                 \n\
     {                                                           \n\
-        gl_Position = model * vec4(pos.x, pos.y, pos.z, 1.0f);  \n\
+        gl_Position = model * vec4(pos, 1.0f);                  \n\
     }                                                           \n\
 ";
 
@@ -54,9 +59,9 @@ void createTriangle()
 {
     // VAO holds multiple VBOs that define how a triangle is drawn
     GLfloat vertices[] = {
-        -0.5f, -0.5f,  0.0f,
-        +0.5f, -0.5f,  0.0f,
-         0.0f, +0.5f,  0.0f
+        -1.0f, -1.0f,  0.0f,
+        +1.0f, -1.0f,  0.0f,
+         0.0f, +1.0f,  0.0f
     };
 
     // creating a vertex array in the memory of GPU and returns its ID
@@ -206,6 +211,7 @@ int main()
         // get and handle user input events
         glfwPollEvents();
 
+        // translation parameters
         if (direction) // going right
             triOffset += triIncrement;
         else
@@ -214,10 +220,20 @@ int main()
         if (abs(triOffset) >= triMaxOffset)
             direction = !direction;
 
+        // rotation parameters
         currAngle += 0.1f;
 
         if (currAngle >= 360.0f)
             currAngle -= 360.0f;
+
+        // scaling parameters
+        if (sizeDirection)
+            currSize += 0.01f;
+        else
+            currSize -= 0.01f;
+
+        if (currSize >= maxSize || currSize <= minSize)
+            sizeDirection = !sizeDirection;
 
         // clear window
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -228,8 +244,9 @@ int main()
         glm::mat4 model = glm::mat4(1.0f); // initialised to identity matrix
         
         // order of operations is important
-        model = glm::translate(model, glm::vec3(triOffset, triOffset, 0.0f));
         model = glm::rotate(model, currAngle * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+        model = glm::translate(model, glm::vec3(triOffset, triOffset, 0.0f));
+        model = glm::scale(model, glm::vec3(currSize, currSize, 0.0f));
 
         glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
