@@ -2,6 +2,12 @@
 
 Udemy OpenGL course.
 
+## Installation
+
+### Ubuntu
+
+GLM : `sudo apt install libglm-dev`
+
 ## Compiling
 
 Line to compile from terminal on Linux: `g++ filename.cpp -o filename -lglfw3 -lGLEW -lGL -lm -lX11 -lpthread -lXi -lXrandr -ldl`
