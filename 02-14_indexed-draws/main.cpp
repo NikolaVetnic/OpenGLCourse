@@ -15,7 +15,7 @@ const GLint WIDTH = 800;
 const GLint HEIGHT = 600;
 const float toRadians = 3.14159265f / 180.0f;
 
-GLuint VAO, VBO, shader, uniformModel;
+GLuint VAO, VBO, IBO, shader, uniformModel;
 
 bool direction = true; // right - true, left - false
 float triOffset = 0.0f;
@@ -62,26 +62,39 @@ static const char* fShader = "                                  \n\
 
 void createTriangle()
 {
-    // VAO holds multiple VBOs that define how a triangle is drawn
+    unsigned int indices[] = {
+        0, 3, 1,
+        1, 3, 2,
+        2, 3, 0,
+        0, 1, 2
+    };
+
+    // VAO holds multiple VBOs that define how a pyramid is drawn
     GLfloat vertices[] = {
-        -1.0f, -1.0f,  0.0f,
-        +1.0f, -1.0f,  0.0f,
-         0.0f, +1.0f,  0.0f
+        -1.0f * .67f, -1.0f * .33f,  0.0f,
+         0.0f       ,  0.0f       , +1.0f,
+        +1.0f * .67f, -1.0f * .33f,  0.0f,
+         0.0f       , +1.0f * .67f,  0.0f
     };
 
     // creating a vertex array in the memory of GPU and returns its ID
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
 
-        glGenBuffers(1, &VBO);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glGenBuffers(1, &IBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
+            glGenBuffers(1, &VBO);
+            glBindBuffer(GL_ARRAY_BUFFER, VBO);
             glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-            
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-            glEnableVertexAttribArray(0);
+                
+                glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+                glEnableVertexAttribArray(0);
 
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     glBindVertexArray(0);
 }
@@ -205,7 +218,9 @@ int main()
         exit(EXIT_FAILURE);
     }
 
-    // setup viewport size
+    glEnable(GL_DEPTH_TEST);
+
+    // create viewport
     glViewport(0, 0, bufferWidth, bufferHeight);
 
     createTriangle();
@@ -226,7 +241,7 @@ int main()
             direction = !direction;
 
         // rotation parameters
-        currAngle += 0.1f;
+        currAngle += 1.0f;
 
         if (currAngle >= 360.0f)
             currAngle -= 360.0f;
@@ -242,22 +257,27 @@ int main()
 
         // clear window
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // bitwise OR - clear both color and depth buffer
 
         glUseProgram(shader);
 
         glm::mat4 model = glm::mat4(1.0f); // initialised to identity matrix
         
         // order of operations is important
-        // model = glm::rotate(model, currAngle * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+        model = glm::rotate(model, currAngle * toRadians, glm::vec3(1.0f, 1.0f, 1.0f));
         // model = glm::translate(model, glm::vec3(triOffset, triOffset, 0.0f));
-        model = glm::scale(model, glm::vec3(0.4f, 0.4f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.4f, 0.4f, 0.4f));
 
         glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
             glBindVertexArray(VAO);
 
-                glDrawArrays(GL_TRIANGLES, 0, 3);
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+
+                    // glDrawArrays(GL_TRIANGLES, 0, 3);
+                    glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
+
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
             glBindVertexArray(0); // unbind VAO
 
