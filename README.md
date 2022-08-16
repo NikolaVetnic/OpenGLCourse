@@ -16,7 +16,7 @@ Line to compile from terminal on Linux: `g++ filename.cpp -o filename -lglfw3 -l
 
 Line with less parameters that I also found to be working: `g++ main.cpp -o main -lglfw3 -lGLEW -lGL -lX11`
 
-Compiling multiple files at once: `g++ main.cpp source/Mesh.cpp -o main -lglfw3 -lGLEW -lGL -lX11`
+Compiling multiple files at once: `g++ main.cpp source/Mesh.cpp source/Shader.cpp source/Window.cpp -o main.out -lglfw3 -lGLEW -lGL -lX11`
 
 ## Variable Qualifiers
 
