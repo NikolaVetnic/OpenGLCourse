@@ -60,7 +60,7 @@ static const char* fShader = "                                  \n\
     }                                                           \n\
 ";
 
-void createTriangle()
+void CreateObjects()
 {
     unsigned int indices[] = {
         0, 3, 1,
@@ -223,7 +223,7 @@ int main()
     // create viewport
     glViewport(0, 0, bufferWidth, bufferHeight);
 
-    createTriangle();
+    CreateObjects();
     compileShaders();
 
     while (!glfwWindowShouldClose(mainWindow))

@@ -55,7 +55,7 @@ static const char* fShader = "                                  \n\
     }                                                           \n\
 ";
 
-void createTriangle()
+void CreateObjects()
 {
     // VAO holds multiple VBOs that define how a triangle is drawn
     GLfloat vertices[] = {
@@ -203,7 +203,7 @@ int main()
     // setup viewport size
     glViewport(0, 0, bufferWidth, bufferHeight);
 
-    createTriangle();
+    CreateObjects();
     compileShaders();
 
     while (!glfwWindowShouldClose(mainWindow))
