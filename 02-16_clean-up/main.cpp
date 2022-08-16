@@ -12,6 +12,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "headers/Mesh.h"
+#include "headers/Shader.h"
 
 // window dimension 
 const GLint WIDTH = 800;
@@ -19,8 +20,7 @@ const GLint HEIGHT = 600;
 const float toRadians = 3.14159265f / 180.0f;
 
 std::vector<Mesh*> meshList;
-
-GLuint shader, uniformModel, uniformProjection;
+std::vector<Shader> shaderList;
 
 // translation parameters
 bool direction = true; // right - true, left - false
@@ -69,7 +69,7 @@ static const char* fShader = "                                  \n\
     }                                                           \n\
 ";
 
-void createTriangle()
+void CreateObjects()
 {
     unsigned int indices[] = {
         0, 3, 1,
@@ -88,83 +88,16 @@ void createTriangle()
 
     Mesh* obj0 = new Mesh();
 
-    obj0->createMesh(vertices, indices, 12, 12);
+    obj0->CreateMesh(vertices, indices, 12, 12);
     meshList.push_back(obj0); // add to the end of list of meshes
 }
 
-void addShader(GLuint shaderProgram, const char* shaderCode, GLenum shaderType)
+void CreateShaders()
 {
-    GLuint shaderObj = glCreateShader(shaderType);
-    
-    if (shaderObj == 0)
-    {
-        fprintf(stderr, "Error creating shader type %d \n", shaderType);
-        exit(EXIT_FAILURE);
-    }
-    
-    const GLchar* theCode[1];
-    theCode[0] = shaderCode;
-    GLint codeLength[1];
-    codeLength[0] = strlen(shaderCode);
-    
-    glShaderSource(shaderObj, 1, theCode, codeLength);
-    glCompileShader(shaderObj);
-    
-    GLint result = 0;
-    GLchar eLog[1024] = { 0 };
+    Shader *shader0 = new Shader();
 
-    glGetShaderiv(shaderObj, GL_COMPILE_STATUS, &result);
-
-    if (!result)
-    {
-        glGetShaderInfoLog(shaderObj, 1024, NULL, eLog);
-        fprintf(stderr, "Error compiling shader type %d: '%s' \n", shaderType, eLog);
-        exit(EXIT_FAILURE);
-    }
-    
-    glAttachShader(shaderProgram, shaderObj);
-}
-
-void compileShaders()
-{
-    // creating a shader program and returns its ID
-    shader = glCreateProgram();
-
-    if (!shader)
-    {
-        printf("Error creating shader program \n");
-        return;
-    }
-    
-    addShader(shader, vShader, GL_VERTEX_SHADER);
-    addShader(shader, fShader, GL_FRAGMENT_SHADER);
-
-    GLint result = 0; // result of the performed functions
-    GLchar eLog[1024] = { 0 }; // place to log the errors
-
-    glLinkProgram(shader); // linking the shader program
-    glGetProgramiv(shader, GL_LINK_STATUS, &result); // getting the result of the linking
-    
-    if (!result)
-    {
-        glGetProgramInfoLog(shader, sizeof(eLog), NULL, eLog); // getting the error log
-        printf("Error linking shader program: '%s' \n", eLog); // printing the error log
-        return;
-    }
-
-    glValidateProgram(shader); // validating the shader program
-    glGetProgramiv(shader, GL_VALIDATE_STATUS, &result); // getting the result of the validation
-    
-    if (!result)
-    {
-        glGetProgramInfoLog(shader, sizeof(eLog), NULL, eLog); // getting the error log
-        printf("Error validating shader program: '%s' \n", eLog); // printing the error log
-        return;
-    }
-
-    // getting the location of the uniform variable
-    uniformModel = glGetUniformLocation(shader, "model");
-    uniformProjection = glGetUniformLocation(shader, "projection");
+    shader0->CreateFromString(vShader, fShader);
+    shaderList.push_back(*shader0);
 }
 
 int main()
@@ -218,8 +151,11 @@ int main()
     // create viewport
     glViewport(0, 0, bufferWidth, bufferHeight);
 
-    createTriangle();
-    compileShaders();
+    CreateObjects();
+    CreateShaders();
+
+    GLuint uniformProjection = 0;
+    GLuint uniformModel = 0;
 
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat)bufferWidth / (GLfloat)bufferHeight, 0.1f, 100.0f);
 
@@ -256,7 +192,9 @@ int main()
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // bitwise OR - clear both color and depth buffer
 
-        glUseProgram(shader);
+        shaderList[0].UseShader();
+        uniformModel = shaderList[0].GetModelLocation();
+        uniformProjection = shaderList[0].GetProjectionLocation();
 
         // draw meshList[0]
         glm::mat4 model = glm::mat4(1.0f); // initialised to identity matrix
@@ -269,7 +207,7 @@ int main()
         glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
         glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
 
-        meshList[0]->renderMesh();
+        meshList[0]->RenderMesh();
 
         // draw meshList[1]
         model = glm::mat4(1.0f);
@@ -281,7 +219,7 @@ int main()
         glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
         glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
 
-        meshList[0]->renderMesh();
+        meshList[0]->RenderMesh();
 
         glUseProgram(0); // unassigning the shader program
 

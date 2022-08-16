@@ -8,7 +8,7 @@ Mesh::Mesh()
     indexCount = 0;
 }
 
-void Mesh::createMesh(GLfloat *vertices, unsigned int *indices, unsigned int numOfVertices, unsigned int numOfIndices)
+void Mesh::CreateMesh(GLfloat *vertices, unsigned int *indices, unsigned int numOfVertices, unsigned int numOfIndices)
 {
     indexCount = numOfIndices;
     
@@ -36,7 +36,7 @@ void Mesh::createMesh(GLfloat *vertices, unsigned int *indices, unsigned int num
     indexCount = numOfIndices;
 }
 
-void Mesh::renderMesh()
+void Mesh::RenderMesh()
 {
     glBindVertexArray(VAO);    
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
@@ -47,7 +47,7 @@ void Mesh::renderMesh()
     glBindVertexArray(0);
 }
 
-void Mesh::clearMesh()
+void Mesh::ClearMesh()
 {
     if (IBO != 0)
     {
@@ -72,5 +72,5 @@ void Mesh::clearMesh()
 
 Mesh::~Mesh()
 {
-    clearMesh();
+    ClearMesh();
 }

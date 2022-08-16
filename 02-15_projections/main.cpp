@@ -64,7 +64,7 @@ static const char* fShader = "                                  \n\
     }                                                           \n\
 ";
 
-void createTriangle()
+void CreateObjects()
 {
     unsigned int indices[] = {
         0, 3, 1,
@@ -229,7 +229,7 @@ int main()
     // create viewport
     glViewport(0, 0, bufferWidth, bufferHeight);
 
-    createTriangle();
+    CreateObjects();
     compileShaders();
 
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat)bufferWidth / (GLfloat)bufferHeight, 0.1f, 100.0f);
