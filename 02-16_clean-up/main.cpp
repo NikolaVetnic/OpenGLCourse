@@ -11,14 +11,13 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "headers/Window.h" 
 #include "headers/Mesh.h"
 #include "headers/Shader.h"
 
-// window dimension 
-const GLint WIDTH = 800;
-const GLint HEIGHT = 600;
 const float toRadians = 3.14159265f / 180.0f;
 
+Window mainWindow;
 std::vector<Mesh*> meshList;
 std::vector<Shader> shaderList;
 
@@ -73,54 +72,8 @@ void CreateShaders()
 
 int main()
 {
-    if (!glfwInit())
-    {
-        printf("Error initialising GLFW \n");
-
-        glfwTerminate();
-        exit(EXIT_FAILURE);
-    }
-
-    // setup GLFW window properties
-    // OpenGL version
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // core profile
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // allow forward compatibility
-
-    GLFWwindow *mainWindow = glfwCreateWindow(WIDTH, HEIGHT, "Test Window", NULL, NULL);
-
-    if (!mainWindow)
-    {
-        printf("GLFW window creation failed \n");
-
-        glfwTerminate();
-        exit(EXIT_FAILURE);
-    }
-
-    // get buffer size information
-    int bufferWidth, bufferHeight;
-    glfwGetFramebufferSize(mainWindow, &bufferWidth, &bufferHeight);
-
-    // set context for GLEW to use
-    glfwMakeContextCurrent(mainWindow);
-
-    // allow modern extension features
-    glewExperimental = GL_TRUE;
-
-    if (glewInit() != GLEW_OK)
-    {
-        printf("GLEW initialisation failed \n");
-
-        glfwDestroyWindow(mainWindow);
-        glfwTerminate();
-        exit(EXIT_FAILURE);
-    }
-
-    glEnable(GL_DEPTH_TEST);
-
-    // create viewport
-    glViewport(0, 0, bufferWidth, bufferHeight);
+    mainWindow = Window(800, 600);
+    mainWindow.Initialise();
 
     CreateObjects();
     CreateShaders();
@@ -128,9 +81,9 @@ int main()
     GLuint uniformProjection = 0;
     GLuint uniformModel = 0;
 
-    glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat)bufferWidth / (GLfloat)bufferHeight, 0.1f, 100.0f);
+    glm::mat4 projection = glm::perspective(glm::radians(45.0f), mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 100.0f);
 
-    while (!glfwWindowShouldClose(mainWindow))
+    while (!mainWindow.getShouldClose())
     {
         // get and handle user input events
         glfwPollEvents();
@@ -194,7 +147,7 @@ int main()
 
         glUseProgram(0); // unassigning the shader program
 
-        glfwSwapBuffers(mainWindow);
+        mainWindow.swapBuffers();
     }
 
     exit(EXIT_SUCCESS);
