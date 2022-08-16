@@ -21,21 +21,6 @@ Window mainWindow;
 std::vector<Mesh*> meshList;
 std::vector<Shader> shaderList;
 
-// translation parameters
-bool direction = true; // right - true, left - false
-float triOffset = 0.0f;
-float triMaxOffset = 0.7f;
-float triIncrement = 5e-3f;
-
-// rotation parameters
-float currAngle = 0.0f;
-
-// scaling parameters
-bool sizeDirection = true;
-float currSize = 0.5f;
-float maxSize = 1.0f;
-float minSize = 0.1f;
-
 static const char* vShader = "Shaders/shader.vert"; // vertex shader
 static const char* fShader = "Shaders/shader.frag"; // fragment shader
 
@@ -88,30 +73,6 @@ int main()
         // get and handle user input events
         glfwPollEvents();
 
-        // translation parameters
-        if (direction) // going right
-            triOffset += triIncrement;
-        else
-            triOffset -= triIncrement;
-
-        if (abs(triOffset) >= triMaxOffset)
-            direction = !direction;
-
-        // rotation parameters
-        currAngle += 1.0f;
-
-        if (currAngle >= 360.0f)
-            currAngle -= 360.0f;
-
-        // scaling parameters
-        if (sizeDirection)
-            currSize += 0.01f;
-        else
-            currSize -= 0.01f;
-
-        if (currSize >= maxSize || currSize <= minSize)
-            sizeDirection = !sizeDirection;
-
         // clear window
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // bitwise OR - clear both color and depth buffer
@@ -124,8 +85,8 @@ int main()
         glm::mat4 model = glm::mat4(1.0f); // initialised to identity matrix
         
         // order of operations is important
-        model = glm::translate(model, glm::vec3(triOffset, triOffset, triOffset - 2.5f));
-        model = glm::rotate(model, currAngle * toRadians, glm::vec3(1.0f, 1.0f, 1.0f));
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.5f));
+        model = glm::rotate(model, 45.0f * toRadians, glm::vec3(1.0f, 1.0f, 1.0f));
         model = glm::scale(model, glm::vec3(0.4f, 0.4f, 0.4f));
 
         glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
@@ -136,8 +97,8 @@ int main()
         // draw meshList[1]
         model = glm::mat4(1.0f);
         
-        model = glm::translate(model, glm::vec3(-triOffset, -triOffset + .75f, -triOffset - 2.5f));
-        model = glm::rotate(model, currAngle * toRadians, glm::vec3(1.0f, 1.0f, 1.0f));
+        model = glm::translate(model, glm::vec3(0.0f, 0.5f, -2.5f));
+        model = glm::rotate(model, 90.0f * toRadians, glm::vec3(1.0f, 1.0f, 1.0f));
         model = glm::scale(model, glm::vec3(0.4f, 0.4f, 0.4f));
 
         glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
