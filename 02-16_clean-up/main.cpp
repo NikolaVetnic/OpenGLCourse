@@ -37,37 +37,8 @@ float currSize = 0.5f;
 float maxSize = 1.0f;
 float minSize = 0.1f;
 
-// vertex shader
-static const char* vShader = "                                  \n\
-    #version 330                                                \n\
-                                                                \n\
-    layout (location = 0) in vec3 pos;                          \n\
-                                                                \n\
-    out vec4 vCol;                                              \n\
-                                                                \n\
-    uniform mat4 model;                                         \n\
-    uniform mat4 projection;                                    \n\
-                                                                \n\
-    void main()                                                 \n\
-    {                                                           \n\
-        gl_Position = projection * model * vec4(pos, 1.0f);     \n\
-        vCol = vec4(clamp(pos, 0.0f, 1.0f), 1.0f);              \n\
-    }                                                           \n\
-";
-
-// fragment shader
-static const char* fShader = "                                  \n\
-    #version 330                                                \n\
-                                                                \n\
-    in vec4 vCol;                                               \n\
-                                                                \n\
-    out vec4 color;                                             \n\
-                                                                \n\
-    void main()                                                 \n\
-    {                                                           \n\
-        color = vCol;                                           \n\
-    }                                                           \n\
-";
+static const char* vShader = "Shaders/shader.vert"; // vertex shader
+static const char* fShader = "Shaders/shader.frag"; // fragment shader
 
 void CreateObjects()
 {
@@ -96,7 +67,7 @@ void CreateShaders()
 {
     Shader *shader0 = new Shader();
 
-    shader0->CreateFromString(vShader, fShader);
+    shader0->CreateFromFiles(vShader, fShader);
     shaderList.push_back(*shader0);
 }
 
