@@ -14,12 +14,14 @@
 #include "headers/Window.h" 
 #include "headers/Mesh.h"
 #include "headers/Shader.h"
+#include "headers/Camera.h"
 
 const float toRadians = 3.14159265f / 180.0f;
 
 Window mainWindow;
 std::vector<Mesh*> meshList;
 std::vector<Shader> shaderList;
+Camera camera;
 
 static const char* vShader = "Shaders/shader.vert"; // vertex shader
 static const char* fShader = "Shaders/shader.frag"; // fragment shader
@@ -63,8 +65,11 @@ int main()
     CreateObjects();
     CreateShaders();
 
+    camera = Camera();
+
     GLuint uniformProjection = 0;
     GLuint uniformModel = 0;
+    GLuint uniformView = 0;
 
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 100.0f);
 
@@ -73,6 +78,8 @@ int main()
         // get and handle user input events
         glfwPollEvents();
 
+        camera.keyControl(mainWindow.getKeys());
+
         // clear window
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // bitwise OR - clear both color and depth buffer
@@ -80,6 +87,7 @@ int main()
         shaderList[0].UseShader();
         uniformModel = shaderList[0].GetModelLocation();
         uniformProjection = shaderList[0].GetProjectionLocation();
+        uniformView = shaderList[0].GetViewLocation();
 
         // draw meshList[0]
         glm::mat4 model = glm::mat4(1.0f); // initialised to identity matrix
@@ -103,7 +111,7 @@ int main()
 
         glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
         glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
-
+        glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
         meshList[0]->RenderMesh();
 
         glUseProgram(0); // unassigning the shader program
