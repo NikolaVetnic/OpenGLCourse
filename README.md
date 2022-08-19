@@ -6,9 +6,10 @@ Udemy OpenGL course.
 
 ### Ubuntu
 
-GLEW : 
-GLFW : 
+GLEW : `sudo apt-get install libglew-dev`
+GLFW : `sudo apt-get install libglfw3 libglfw3-dev`
 GLM : `sudo apt install libglm-dev`
+xorg : `sudo apt install xorg`
 
 ## Compiling
 
